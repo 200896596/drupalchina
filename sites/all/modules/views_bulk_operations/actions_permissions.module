@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function actions_permissions_permission() {
+  $perms = array();
+  $actions = actions_list();
+  foreach ($actions as $callback => $action) {
+    $perms += actions_permissions_get_perm($action['label'], $callback);
+  }
+  return $perms;
+}
+
+function actions_permissions_get_perm($label, $callback) {
+  $key = "execute $callback";
+  return array($key => array(
+      'title' => t('Execute !label', array('!label' => $label)),
+      'description' => t('Execute action "!label" (!callback).', array('!label' => $label, '!callback' => is_numeric($callback) ? "aid:$callback" : $callback)),
+    ),
+  );
+}

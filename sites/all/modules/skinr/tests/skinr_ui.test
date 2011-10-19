@@ -1,0 +1,327 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Skinr UI module.
+ */
+
+/**
+ * Base class for Skinr UI tests.
+ */
+class SkinrUITestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  function setUp() {
+    parent::setUp(array('block', 'contextual', 'skinr_test', 'skinr_ui'));
+
+    $this->admin_user = $this->drupalCreateUser(array(
+      'administer blocks',
+      'access contextual links',
+      'administer skinr',
+      'edit skin settings',
+      'edit advanced skin settings',
+    ));
+    $this->drupalLogin($this->admin_user);
+
+    // Enable main system block for content region and the user menu block for
+    // the first sidebar.
+    // @see http://drupal.org/node/913086
+    $default_theme = variable_get('theme_default', 'bartik');
+    db_merge('block')
+      ->key(array(
+        'theme' => $default_theme,
+        'module' => 'system',
+        'delta' => 'main',
+      ))
+      ->fields(array(
+        'status' => 1,
+        'region' => 'content',
+        'pages' => '',
+      ))
+      ->execute();
+    db_merge('block')
+      ->key(array(
+        'theme' => $default_theme,
+        'module' => 'system',
+        'delta' => 'user-menu',
+      ))
+      ->fields(array(
+        'status' => 1,
+        'region' => 'sidebar_first',
+        'pages' => '',
+      ))
+      ->execute();
+
+    // Enable Garland and skinr_test_subtheme without enabling its base theme in
+    // order to test subtheme inheritance functionality.
+    theme_enable(array('garland', 'skinr_test_subtheme'));
+  }
+
+  /**
+   * Asserts that a class is set for the given element id.
+   *
+   * @param $id
+   *   Id of the HTML element to check.
+   * @param $class
+   *   The class name to check for.
+   * @param $message
+   *   Message to display.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  function assertSkinrClass($id, $class, $message = '') {
+    $elements = $this->xpath('//div[@id=:id]', array(':id' => $id));
+    $class_attr = (string) $elements[0]['class'];
+    $this->assertTrue(strpos($class_attr, ' ' . $class . ' '), $message);
+  }
+
+  /**
+   * Asserts that a class is not set for the given element id.
+   *
+   * @param $id
+   *   Id of the HTML element to check.
+   * @param $class
+   *   The class name to check for.
+   * @param $message
+   *   Message to display.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  function assertNoSkinrClass($id, $class, $message = '') {
+    $elements = $this->xpath('//div[@id=:id]', array(':id' => $id));
+    $class_attr = (string) $elements[0]['class'];
+    $this->assertFalse(strpos($class_attr, ' ' . $class . ' '), $message);
+  }
+}
+
+/**
+ * Tests UI functionality.
+ */
+class SkinrUIBasicTestCase extends SkinrUITestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'UI',
+      'description' => 'Tests basic Skinr UI functionality.',
+      'group' => 'Skinr',
+    );
+  }
+
+  /**
+   * Tests basic configuration and applying of a skin.
+   *
+   * @todo For some reason, contextual links are not visible in the debug output
+   *   when running tests; likely a core bug in contextual.js. However, the
+   *   links are contained in the output. Keep this in mind when manually
+   *   reviewing the debug output after running tests!
+   * @todo Remove the overly verbose inline comments after the Skinr development
+   *   team has figured out how to write tests.
+   */
+  function testSkinEdit() {
+    // Go to the front page, on which the user menu block should appear.
+    $this->drupalGet('');
+    // Click the first (index 0) 'Edit skin' link on the page, which should be
+    // the link in the contextual links of the user menu block, since no other
+    // skinnable elements are visible on the page.
+    // For now, this is a simple way to assert and access Skinr links. In the
+    // future, we want to be more explicit in testing; i.e., verify that there
+    // is really only this link, its 'href' is correct, that it appears in the
+    // right location, etc.pp; DrupalWebTestCase ($this) provides many helper
+    // functions to assert such things.
+    $this->clickLink(t('Edit skin'), 0);
+    // Verify that we end up on the expected URL to configure skins for the
+    // user menu block.
+    $front = variable_get('site_frontpage', 'node');
+    $this->assertUrl('admin/appearance/skinr/edit/nojs/block/system__user-menu/configure', array(
+      'query' => array('destination' => $front),
+    ));
+
+    // skinr_test.module got enabled in setUp(), so its skins should be
+    // available.
+    // Verify that we can apply the skinr_test_font skin to the block.
+    $edit = array(
+      'skinr_settings[block_group][bartik][typography][skinr_test_font]' => 'font_1',
+    );
+    // NULL means that we want to post to the page that is still contained in
+    // SimpleTest's internal browser; i.e., the page of the path above. Instead
+    // of passing NULL, you can also pass a Drupal system path and SimpleTest
+    // will automatically do a $this->drupalGet($path) for you before posting.
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // After posting, we expect to be redirected to the originating page, due
+    // to the 'destination' query parameter in the 'Edit skin' link. Since we
+    // came from the front page, Drupal will redirect us to the actual path of
+    // the front page, not ''.
+    // Verify that we were redirected to the originating page.
+    $this->assertUrl($front);
+
+    // Verify that the skin has been applied.
+    $this->assertSkinrClass('block-system-user-menu', 'font-1', 'CSS class of configured skin option found.');
+  }
+
+  /**
+   * Tests access control for editing additional CSS classes.
+   */
+  function testSkinAdditionalEdit() {
+    // Verify that we can apply additional CSS classes.
+    $edit = array(
+      'skinr_settings[block_group][bartik][_additional]' => 'additional',
+    );
+    $this->drupalPost('admin/appearance/skinr/edit/nojs/block/system__user-menu/configure', $edit, t('Save'));
+
+    // Verify that the skin has been applied.
+    $this->drupalGet('');
+    $this->assertSkinrClass('block-system-user-menu', 'additional', 'Additional CSS class <em>additional</em> of configured skin option found.');
+
+    // Now let's check the same for a user that has no access to alter this.
+    $user = $this->drupalCreateUser(array('edit skin settings'));
+    $this->drupalLogin($user);
+
+    // Verify that the additional CSS classes field is not enabled.
+    $this->drupalGet('admin/appearance/skinr/edit/nojs/block/system__user-menu/configure');
+    $this->assertNoFieldByName('skinr_settings[block_group][bartik][_additional]', NULL, 'Additional CSS classes field is not enabled for this user.');
+
+    // Save form when additional CSS classes is not set.
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Verify that the old class is still applied.
+    $this->drupalGet('');
+    $this->assertSkinrClass('block-system-user-menu', 'additional', 'Additional CSS class <em>additional</em> of configured skin option found.');
+  }
+}
+
+/**
+ * Tests administrative pages functionality.
+ */
+class SkinrUIAdminTestCase extends SkinrUITestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Administration',
+      'description' => 'Tests administrative Skinr UI functionality.',
+      'group' => 'Skinr',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('skinr_test', 'skinr_ui'));
+
+    $this->admin_user = $this->drupalCreateUser(array(
+      'administer skinr',
+      'edit skin settings',
+      'edit advanced skin settings',
+    ));
+    $this->drupalLogin($this->admin_user);
+
+    // Enable Garland and skinr_test_subtheme without enabling its base theme in
+    // order to test subtheme inheritance functionality.
+    theme_enable(array('garland', 'skinr_test_subtheme'));
+  }
+
+  /**
+   * Tests default status of skins.
+   *
+   * The skinr_test_basetheme skin defined by the skinr_test_basetheme theme
+   * specifies a default status for itself. Its subtheme should inherit the
+   * status of the basetheme.
+   *
+   * @todo Add assertions for 'default status' itself.
+   */
+  function testSkinDefaultStatus() {
+    // Verify that the skin appears on the skin overview page.
+    $this->drupalGet('admin/appearance/skinr/skins');
+    $this->assertLinkByHref('admin/appearance/skinr/skins/settings/skinr_test_basetheme');
+    $this->drupalGet('admin/appearance/skinr/skins/settings/skinr_test_basetheme');
+
+    // Verify that it is enabled for the skinr_test_subtheme, and disabled for
+    // Bartik and Garland by default.
+    $this->assertFieldChecked('edit-skins-skinr-test-subtheme-skinr-test-basetheme-enable', 'skinr_test_basetheme skin is enabled for skinr_test_subtheme.');
+    $this->assertNoFieldChecked('edit-skins-bartik-skinr-test-basetheme-enable', 'skinr_test_basetheme skin is disabled for Bartik.');
+    $this->assertNoFieldChecked('edit-skins-garland-skinr-test-basetheme-enable', 'skinr_test_basetheme skin is disabled for Garland.');
+  }
+
+  /**
+   * Tests skin group functionality.
+   */
+  function testSkinGroups() {
+    $this->drupalGet('admin/appearance/skinr/skins');
+
+    // Verify that the 'General' (default) group appears.
+    $this->assertText(t('General'));
+
+    // Verify that the 'Typography' group appears, since skinr_test module
+    // registers a skin in that group.
+    $this->assertText(t('Typography'));
+  }
+
+  /**
+   * Tests skin configuration listing functionality.
+   */
+  function testSkinListing() {
+    $skin = (object) array(
+      'theme' => 'skinr_test_subtheme',
+      'module' => 'block',
+      'element' => 'system__user-menu',
+      'skin' => 'skinr_test_subtheme',
+      'options' => array('option1', 'option2'),
+      'status' => 1,
+    );
+    skinr_skin_save($skin);
+
+    // Verify that the skin configuration appears on the skin configurations overview page.
+    $this->drupalGet('admin/appearance/skinr');
+    $this->assertLinkByHref('admin/appearance/skinr/delete/' . $skin->sid . '?destination=admin/appearance/skinr', 0, 'Skin configuration was found on overview page.');
+
+    // @todo Should we check the filtering and update options functionality?
+  }
+}
+
+/**
+ * Tests rules administrative pages functionality.
+ */
+class SkinrUIRulesTestCase extends SkinrUITestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules UI',
+      'description' => 'Tests rules functionality for Skinr UI.',
+      'group' => 'Skinr',
+    );
+  }
+
+  /**
+   * Tests administrative interface for rules.
+   */
+  function testRules() {
+    // Test that there is a rules page.
+    $this->drupalGet('admin/appearance/skinr');
+    $this->assertLinkByHref('admin/appearance/skinr/rules');
+
+    // Test that there is a way to add rules.
+    $this->drupalGet('admin/appearance/skinr/rules');
+    $this->clickLink(t('Create a new rule'), 0);
+
+    // Verify that we end up on the expected URL.
+    $this->assertUrl('admin/appearance/skinr/rules/add');
+
+    // Verify that we can create the rule.
+    $edit = array(
+      'rule[title]' => 'Rule 1',
+      'rule[rule_type]' => 'page',
+    );
+    $this->drupalPost(NULL, $edit, t('Add'));
+
+    // After posting, we expect to be redirected to the rule edit page.
+    $this->assertUrl('admin/appearance/skinr/rules/edit/1');
+
+    // Save rule.
+    // @todo Add a skin and test whether it applies properly or not.
+    $edit = array(
+    );
+    $this->drupalPost(NULL, $edit, t('Save rule'));
+
+    // We should be returned back to the rules page.
+    $this->assertUrl('admin/appearance/skinr/rules');
+
+    // Make sure the new rule appears listed on this page.
+    $this->assertLinkByHref('admin/appearance/skinr/rules/edit/1');
+  }
+}

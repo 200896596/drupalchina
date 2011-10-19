@@ -1,0 +1,12 @@
+name = UR-UI
+description = "User Relationships UI. This enables basic UI functionality for User Relationships"
+package = "User Relationships"
+dependencies[] = user_relationships
+core = 7.x
+
+; Information added by drupal.org packaging script on 2011-04-15
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1302874618"
+

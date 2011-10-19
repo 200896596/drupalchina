@@ -1,0 +1,43 @@
+-------------------------------------------------------------------------------------
+7.x-1.2 xx/xx/2011
+-------------------------------------------------------------------------------------
+- #1187960 by askibinski: trigger solr on empty search.
+- #1184646 by swentel: make fields in non existing regions are visible in the UI.
+- #1166928 by swentel: support for gravatar.
+- #1175414 by swentel: fix issue with regions having dashes/underscores.
+- #1171408 by mverbaar: Add starter template and drush integration.
+- #1143070 by neurojavi: Check on taxonomy formatters/view modes.
+- #1152232 by yoroy: remove unnecessary checkbox descriptions.
+- #1151858 by neurojavi: add file entity support to ds views plugin.
+- #1155148 by swentel: fix notices on entities.
+- #1136542 by swentel: add micro support.
+- #1160014 by swentel: add option to remove all theme hook suggestions.
+- #1163046 by swentel: map old regions to new regions when changing layout.
+- Cleanup admin settings screen of Extras module.
+- Support for Panels layouts.
+- New feature: Dynamic content field.
+- New Extras feature: extra fields.
+- New Extras feature: contextual links to manage display screens.
+- New Extras feature: switch view mode fields through ajax.
+- Fix notices in fields and view modes form on fieldable key.
+
+-------------------------------------------------------------------------------------
+7.x-1.1 09/05/2011
+-------------------------------------------------------------------------------------
+- #1150536 by swentel: fix apachesolr changes in DS search.
+- #1053912 by swentel and jyve: change field labels, classes and wrappers per mode. 
+- #1142572 by swentel: add ability to hide the page title on full node view.
+- #1132682 by swentel: add hook_ds_layout_info_alter().
+- #1129208 by swentel: support for Fivestar in Extras module.
+- #1129228 by netsensei and swentel: create separate render function.
+- #1131364 by BrockBoland: fix documentation in ds.api.php for use_token.
+- #1124346 by codycraven and swentel: Fix racing conditions on additional settings.
+- #1125250 by swentel: check on default user image.
+- Use another function to preprocess a view.
+- Optimized wording in extras settings screen.
+- Remove Obsolete CVS $Id$ tags and .DS_Store directory.
+
+-------------------------------------------------------------------------------------
+7.x-1.0 09/04/2011
+-------------------------------------------------------------------------------------
+- First official 1.0 release for D7.
