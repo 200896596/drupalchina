@@ -63,7 +63,7 @@ function drupalchina_install() {
   filter_format_save($full_html_format);
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'drupalchina');
+  $default_theme = 'drupalchina';
   $admin_theme = 'drupalchina';
   $values = array(
     array(
@@ -144,7 +144,7 @@ function drupalchina_install() {
       'weight' => -8,
       'region' => 'sidebar_first',
       'pages' => '',
-      'cache' => -1,
+      'cache' => 1,
     ),
     array(
       'module' => 'system',
