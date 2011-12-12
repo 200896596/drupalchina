@@ -63,8 +63,8 @@ function drupalchina_install() {
   filter_format_save($full_html_format);
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'bartik');
-  $admin_theme = 'seven';
+  $default_theme = variable_get('theme_default', 'drupalchina');
+  $admin_theme = 'drupalchina';
   $values = array(
     array(
       'module' => 'system',
@@ -423,6 +423,28 @@ function drupalchina_install() {
     ->condition('type', 'theme')
     ->condition('name', 'seven')
     ->execute();
-  variable_set('admin_theme', 'seven');
+  variable_set('admin_theme', 'drupalchina');
   variable_set('node_admin_theme', '1');
+  
+  $front_theme = 'drupalchina';
+  
+  _drupalchina_set_front_theme($front_theme);
+  
+}
+
+
+
+/**
+ * _webizi_core_set_front_theme: function for enable défault theme for
+ * front office.
+ * @param String $front_theme
+ */
+function _drupalchina_set_front_theme($front_theme) {
+  // Enable the front theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $front_theme)
+    ->execute();
+  variable_set('theme_default', $front_theme);
 }
