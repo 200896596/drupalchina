@@ -64,7 +64,7 @@ function drupalchina_install() {
 
   // Enable some standard blocks.
   $default_theme = 'drupalchina';
-  $admin_theme = 'drupalchina';
+  //$admin_theme = 'drupalchina';
   $values = array(
     array(
       'module' => 'system',
@@ -89,7 +89,7 @@ function drupalchina_install() {
     array(
       'module' => 'node',
       'delta' => 'recent',
-      'theme' => $admin_theme,
+      'theme' => $default_theme,
       'status' => 1,
       'weight' => 10,
       'region' => 'dashboard_main',
@@ -145,56 +145,6 @@ function drupalchina_install() {
       'region' => 'sidebar_first',
       'pages' => '',
       'cache' => 1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'help',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'help',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'user',
-      'delta' => 'login',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 10,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'user',
-      'delta' => 'new',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'dashboard_sidebar',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'search',
-      'delta' => 'form',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => -10,
-      'region' => 'dashboard_sidebar',
-      'pages' => '',
-      'cache' => -1,
     ),
   );
   $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
@@ -428,17 +378,22 @@ function drupalchina_install() {
   menu_rebuild();
 
   // Enable the admin theme.
-  db_update('system')
+  /*db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
     ->condition('name', 'seven')
     ->execute();
   variable_set('admin_theme', 'drupalchina');
-  variable_set('node_admin_theme', '1');
+  variable_set('node_admin_theme', '1');*/
   
   $front_theme = 'drupalchina';
   
   _drupalchina_set_front_theme($front_theme);
+  
+  
+  $theme_settings = variable_get('theme_drupalchina_settings', array());
+  $theme_settings['toggle_name'] = 0;
+  variable_set('theme_drupalchina_settings', $theme_settings);
   
 }
 
