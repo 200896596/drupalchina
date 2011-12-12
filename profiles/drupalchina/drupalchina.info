@@ -48,6 +48,7 @@ dependencies[] = xmlsitemap_engines
 dependencies[] = xmlsitemap_menu
 dependencies[] = xmlsitemap_node
 dependencies[] = xmlsitemap_taxonomy
+dependencies[] = drupalchina_feature_menu
 ;dependencies[] = googleanalytics
 
 files[] = drupalchina.profile
