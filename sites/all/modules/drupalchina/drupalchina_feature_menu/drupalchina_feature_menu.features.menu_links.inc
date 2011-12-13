@@ -34,11 +34,7 @@ function drupalchina_feature_menu_menu_default_menu_links() {
     'link_path' => 'home',
     'router_path' => 'home',
     'link_title' => 'Home',
-    'options' => array(
-      'attributes' => array(
-        'title' => '',
-      ),
-    ),
+    'options' => array(),
     'module' => 'system',
     'hidden' => '0',
     'external' => '0',

@@ -238,6 +238,83 @@ function drupalchina_install() {
 
   );
   taxonomy_vocabulary_save($vocabulary);
+  
+  
+  //add drupalchina homebox
+  $homebox = new stdClass;
+  $homebox->name = 'dashboard';
+  $homebox->settings = array (
+    'regions' => 3,
+    'cache' => 0,
+    'color' => 0,
+    'colors' => 
+    array (
+      0 => '#E4F0F8',
+      1 => '#E4F0F8',
+      2 => '#E4F0F8',
+      3 => '#E4F0F8',
+      4 => '#E4F0F8',
+      5 => '#E4F0F8',
+    ),
+    'blocks' => 
+      array (
+        'shortcut_shortcuts' => 
+        array (
+          'module' => 'shortcut',
+          'delta' => 'shortcuts',
+          'region' => 1,
+          'movable' => 1,
+          'status' => 1,
+          'open' => 1,
+          'closable' => 1,
+          'title' => '',
+          'weight' => -12,
+        ),
+        'user_new' => 
+        array (
+          'module' => 'user',
+          'delta' => 'new',
+          'region' => 2,
+          'movable' => 1,
+          'status' => 1,
+          'open' => 1,
+          'closable' => 1,
+          'title' => '',
+          'weight' => -12,
+        ),
+      ),
+      'widths' => 
+    array (
+    ),
+    'title' => 'Dashboard',
+    'path' => 'dashboard',
+    'menu' => 1,
+    'enabled' => 1,
+    'auto_save' => 1,
+    'full' => 0,
+    'roles' => 
+    array (
+      0 => 'administrator',
+      1 => 'authenticated user',
+    ),
+  );
+  // Save settings
+  homebox_save_page($homebox);
+  
+  
+  // Settings of login_destination
+  
+  $login_destination = array(
+      'destination_type' => 0,
+      'destination' => 'dashboard',
+      'triggers' => 'a:0:{}',
+      'pages_type' => 0,
+      'pages' => '',
+      'roles' => 'a:0:{}',
+      'weight' => 0,
+  );
+  
+  drupal_write_record('login_destination', $login_destination);
 
   $field = array(
     'field_name' => 'field_' . $vocabulary->machine_name,
