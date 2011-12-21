@@ -1,0 +1,71 @@
+<?php
+/**
+ * @file
+ * Code for the drupalchina_feature_panel_page feature.
+ */
+
+include_once('drupalchina_feature_panel_page.features.inc');
+
+/**
+* Implementation of hook_block_info().
+*/
+function drupalchina_feature_panel_page_block_info() {
+	$blocks['home_block1'] = array(
+			'info' => t('Block1'),
+	);
+	$blocks['home_block2'] = array(
+			'info' => t('Block2'),
+	);
+	return $blocks;
+}
+
+/**
+* Implementation of hook_block_view().
+*/
+function drupalchina_feature_panel_page_block_view($delta='') {
+	$block = array();
+	switch ($delta) {
+		case 'home_block1':
+			$block['subject'] = t('Block1');
+			$block['content'] = blockone_contents();
+			break;
+		case 'home_block2':
+			$block['subject'] = t('Block2');
+			$block['content'] = blocktwo_contents();
+			break;
+	}
+	return $block;
+}
+
+/**
+* custom html block
+* @return string
+*/
+function blockone_contents() {
+	return "
+	<div id='mission'>本网站正在建设中，旨在建立成为一个开源免费，非营利性的 <strong>Drupal 中文社区</strong>
+	。欢迎有兴趣的Drupal爱好者加入进来！QQ群：154077824 <a href='http://www.drupal.org' class='mission-link'>www.drupal.org.</a><br>
+	<div class='mission-left'><a href='/handbuch/infos'>»&nbsp;Infos</a><a href='/handbuch/drupal6-installationsanleitung'>»&nbsp;Installation</a><a href='/forum'>»&nbsp;Forum</a> 
+	<a href='/showcase'>»&nbsp;Showcase</a><a href='/handbuch/update'>»&nbsp;Update</a><a href='/team'>»&nbsp;Team</a> <span></span></div></div>
+	";
+}
+
+
+/**
+ * custom html block
+ * @return string
+ */
+function blocktwo_contents() {
+	return "
+	<div class='node node-teaser' style='background-color: #e7f2d8; border: 1px solid #7ca327;'><h2 style='padding: 1px 20px; background-color: #7ca327; color: #ffffff; font-size: 16px; font-weight: bold;'>
+	Drupal 7.2 及 6.22 下载</h2><div class='content'><div style='padding: 4px 20px 2px;'>
+	26.05.2011 推出的 Drupal Versionen 7.2 和 6.22 ，可以从下面链接下载<a href='http://drupal.org/drupal-7.2' title='Drupal 7.2'>http://drupal.org/drupal-7.2</a>.
+	<h2 style='margin-top: 5px; color: #7ca327; font-size: 16px; font-weight: bold;'>Download</h2>Drupal 7.2: <a href='http://ftp.drupal.org/files/projects/drupal-7.2.tar.gz'>http://ftp.drupal.org/files/projects/drupal-7.2.tar.gz</a>
+	 | <a href='http://ftp.drupal.org/files/projects/drupal-7.2.zip'>http://ftp.drupal.org/files/projects/drupal-7.2.zip</a><br>
+	  Drupal 6.22: <a href='http://ftp.drupal.org/files/projects/drupal-6.22.tar.gz'>http://ftp.drupal.org/files/projects/drupal-6.22.tar.gz</a></div><div style='background-color: #ffffff; padding: 3px; margin-top: 4px;'><div style='padding-left: 20px;'>
+	  下载 Drupal-Version <strong>7.2</strong>: <a href='http://ftp.drupalchina.info/drupal-7.2.tar.gz' style='font-weight: normal;'><strong>drupal-7.2.tar.gz</strong></a>
+	   | <a href='http://ftp.drupalchina.info/drupal-7.2.zip' style='font-weight: normal;'>
+	   <strong>drupal-7.2.zip</strong></a></div></div><div style='background-color: #ffffff; padding: 3px; margin-top: 4px;'><div style='padding-left: 20px;'>下载 Drupal-Version <strong>6.22</strong>: <a href='http://ftp.drupalchina.info/drupal-6.22.tar.gz' style='font-weight: normal;'>
+	   <strong>Download</strong></a></div></div></div></div>	
+	";
+}

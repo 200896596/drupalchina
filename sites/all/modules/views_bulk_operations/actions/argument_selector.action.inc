@@ -16,7 +16,7 @@ function views_bulk_operations_argument_selector_action_info() {
       'label' => t('Pass ids as arguments to a page'),
       'type' => 'entity',
       'aggregate' => TRUE,
-      'configurable' => FALSE,
+      'configurable' => TRUE,
       'hooks' => array(),
     ),
   );
@@ -27,7 +27,7 @@ function views_bulk_operations_argument_selector_action_info() {
 * Passes selected ids as arguments to a view.
 */
 function views_bulk_operations_argument_selector_action($entities, $context = array()) {
-  $base_url = $context['settings']['url'];
+  $base_url = $context['url'];
   $arguments = implode(',', array_keys($entities));
   // Add a trailing slash if missing.
   if (substr($base_url, -1, 1) != '/') {
@@ -36,13 +36,17 @@ function views_bulk_operations_argument_selector_action($entities, $context = ar
   drupal_goto($base_url . $arguments);
 }
 
-function views_bulk_operations_argument_selector_action_views_bulk_operations_form($options) {
+function views_bulk_operations_argument_selector_action_form($context) {
   $form['url'] = array(
     '#title' => t('URL'),
     '#type' => 'textfield',
-    '#description' => t('Enter a URL that the user will be sent to. A comma-separated list of selected ids will be appended.'),
-    '#default_value' => isset($options['url']) ? $options['url'] : '',
-    '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q='),
+    '#description' => t('Enter a URL that the user will be sent to.'),
+    '#default_value' => @$context['url'],
+    '#required' => TRUE,
   );
   return $form;
+}
+
+function views_bulk_operations_argument_selector_action_submit($form, $form_state) {
+  return array('url' => $form_state['values']['url']);
 }

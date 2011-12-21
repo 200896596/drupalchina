@@ -69,7 +69,7 @@ class EntityDefaultMetadataController {
     $entity_label = drupal_strtolower($this->info['label']);
 
     // Provide defaults based on the schema.
-    $info['properties'] = $this->convertSchema();
+    $info['properties'] = entity_metadata_convert_schema($this->info['base table']);
     foreach ($info['properties'] as $name => &$property) {
       // Add a description.
       $property['description'] = t('@entity "@property" property.', array('@entity' => drupal_ucfirst($entity_label), '@property' => $name));
@@ -77,6 +77,7 @@ class EntityDefaultMetadataController {
 
     // Set better metadata for known entity keys.
     $id_key = $this->info['entity keys']['id'];
+    $info['properties'][$id_key]['validation callback'] = 'entity_metadata_validate_integer_positive';
 
     if (!empty($this->info['entity keys']['name']) && $key = $this->info['entity keys']['name']) {
       $info['properties'][$key]['type'] = 'token';
@@ -115,13 +116,6 @@ class EntityDefaultMetadataController {
       return $options;
     }
   }
-
-  /**
-   * Return a set of properties for an entity based on the schema definition
-   */
-  protected function convertSchema() {
-    return entity_metadata_convert_schema($this->info['base table']);
-  }
 }
 
 /**
@@ -144,7 +138,7 @@ function entity_metadata_convert_schema($table) {
         // As we cannot know about any setter access, leave out the setter
         // callback. For getting usually no further access callback is needed.
       );
-      if ($info['type'] == 'serial') {
+      if ($type == 'serial') {
         $properties[$name]['validation callback'] = 'entity_metadata_validate_integer_positive';
       }
     }

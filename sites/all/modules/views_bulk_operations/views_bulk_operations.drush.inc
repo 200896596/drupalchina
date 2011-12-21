@@ -56,8 +56,10 @@ function views_bulk_operations_drush_list() {
     $vbo = _views_bulk_operations_get_field($view);
     if ($vbo) {
       $operations = array();
-      foreach ($vbo->get_selected_operations() as $operation => $label) {
-        $operations[] = $label .' ('. $operation .')';
+      foreach (array_filter($vbo->options['vbo']['selected_operations']) as $operation) {
+        if (isset($vbo->all_operations[$operation])) {
+          $operations[] = $vbo->all_operations[$operation]['label'] .' ('. $operation .')';
+        }
       }
       $operations[] = "---------------";
       $rows[] = array(
